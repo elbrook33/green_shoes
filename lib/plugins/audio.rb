@@ -1,11 +1,11 @@
 class Shoes
-  class Video
+  class Audio
     def initialize args
       @initials = args
       args.each do |k, v|
         instance_variable_set "@#{k}", v
       end
-      Video.class_eval do
+      Audio.class_eval do
         attr_accessor *args.keys
       end
       args[:real].bus.add_watch do |b, message|
@@ -38,10 +38,6 @@ class Shoes
         @stime = clock_time - seek_time
         @ready = @playing  = true
         (self.time, @eos = 0, nil) if @eos
-      end
-      unless @whdl
-        @whdl = @app.win.window.xid
-        @real.video_sink.xwindow_id = @whdl
       end
       @real.play
     end
@@ -97,16 +93,15 @@ end
 
 class Shoes
   class App
-    def video uri
+    def audio uri
       args = {}
       uri = File.join('file://', uri.gsub("\\", '/').sub(':', '')) unless uri =~ /^(http|https|file):\/\//
       require 'gst'
       v = Gst::ElementFactory.make 'playbin'
-      v.video_sink = Gst::ElementFactory.make('dshowvideosink')
-      v.video_sink = Gst::ElementFactory.make('directdrawsink') unless v.video_sink
+      v.audio_sink = Gst::ElementFactory.make('autoaudiosink')
       v.uri = uri
       args[:real], args[:app] = v, self
-      Video.new args
+      Audio.new args
     end
   end
 end
